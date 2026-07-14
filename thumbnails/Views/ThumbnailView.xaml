@@ -1,0 +1,507 @@
+<UserControl x:Class="FiveOS.Views.ThumbnailView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:vm="clr-namespace:FiveOS.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance vm:ThumbnailViewModel}">
+
+    <UserControl.Resources>
+        <!-- BooleanToVisibility + HexColor live in App.xaml as app-wide
+             resources; this view inherits them via the merged dictionary. -->
+
+        <Style x:Key="SectionHeader" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Opacity" Value="0.55" />
+            <Setter Property="Margin" Value="16,18,16,8" />
+        </Style>
+        <Style x:Key="FieldLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="Opacity" Value="0.7" />
+            <Setter Property="Margin" Value="0,8,0,4" />
+        </Style>
+
+        <LinearGradientBrush x:Key="ReflectionMask" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#99000000" Offset="0.0" />
+            <GradientStop Color="#00000000" Offset="1.0" />
+        </LinearGradientBrush>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="320" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0"
+                    Background="{DynamicResource ControlFillColorDefaultBrush}"
+                    BorderThickness="0,0,1,0"
+                    BorderBrush="{DynamicResource ControlElevationBorderBrush}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Margin="0,0,0,16">
+
+                        <DockPanel Margin="16,18,16,8">
+                            <ui:SymbolIcon DockPanel.Dock="Right"
+                                           Style="{StaticResource HelpIconStyle}"
+                                           ToolTip="Pre-built colour + typography preset for the thumbnail. Pick one as a starting point — every field below can still be overridden after." />
+                            <TextBlock Text="THEME"
+                                       FontSize="11" FontWeight="SemiBold" Opacity="0.55"
+                                       Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                       VerticalAlignment="Center" />
+                        </DockPanel>
+                        <ComboBox Margin="16,0,16,0"
+                                  HorizontalAlignment="Stretch"
+                                  ItemsSource="{Binding Themes}"
+                                  SelectedItem="{Binding SelectedTheme, Mode=TwoWay}"
+                                  DisplayMemberPath="Name"
+                                  ToolTip="Switch the preset. Changes propagate live to the preview on the right." />
+
+                        <DockPanel Margin="16,18,16,8">
+                            <ui:SymbolIcon DockPanel.Dock="Right"
+                                           Style="{StaticResource HelpIconStyle}"
+                                           ToolTip="High-level composition switches. Toggle between the image+text layout and a text-only banner, and add subtle texture (grid dots / grain) for visual interest." />
+                            <TextBlock Text="LAYOUT"
+                                       FontSize="11" FontWeight="SemiBold" Opacity="0.55"
+                                       Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                       VerticalAlignment="Center" />
+                        </DockPanel>
+                        <StackPanel Margin="16,0,16,0">
+                            <ui:ToggleSwitch IsChecked="{Binding IsTextOnly}"
+                                             Content="Text-only layout"
+                                             ToolTip="Drop the main image and use a centered text composition instead — useful for announcements, version banners, or text-heavy promos." />
+                            <ui:ToggleSwitch IsChecked="{Binding ShowGrid}"
+                                             Content="Show grid dots"
+                                             Margin="0,8,0,0"
+                                             ToolTip="Overlay a faint grid of dots — adds a subtle technical / blueprint texture." />
+                            <ui:ToggleSwitch IsChecked="{Binding ShowGrain}"
+                                             Content="Show grain"
+                                             Margin="0,8,0,0"
+                                             ToolTip="Overlay film-grain noise — softens hard gradients and gives the image a print-like feel." />
+                        </StackPanel>
+
+                        <DockPanel Margin="16,18,16,8">
+                            <ui:SymbolIcon DockPanel.Dock="Right"
+                                           Style="{StaticResource HelpIconStyle}"
+                                           ToolTip="All the text that appears on the thumbnail. Each field maps to a slot in the layout — leave any of them empty to hide that slot in the output." />
+                            <TextBlock Text="TEXT"
+                                       FontSize="11" FontWeight="SemiBold" Opacity="0.55"
+                                       Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                       VerticalAlignment="Center" />
+                        </DockPanel>
+                        <StackPanel Margin="16,0,16,0">
+                            <TextBlock Text="Handle" Style="{StaticResource FieldLabel}" />
+                            <ui:TextBox Text="{Binding HandleText, UpdateSourceTrigger=PropertyChanged}"
+                                        ToolTip="Small accent text near the title (e.g. an @ handle, version tag, or category label)." />
+
+                            <TextBlock Text="Title" Style="{StaticResource FieldLabel}" />
+                            <ui:TextBox Text="{Binding TitleText, UpdateSourceTrigger=PropertyChanged}"
+                                        ToolTip="The main headline — biggest text on the banner." />
+
+                            <TextBlock Text="Right header" Style="{StaticResource FieldLabel}" />
+                            <ui:TextBox Text="{Binding RightHeaderText, UpdateSourceTrigger=PropertyChanged}"
+                                        ToolTip="Small text in the upper-right (e.g. price, ETA, edition name)." />
+
+                            <TextBlock Text="Footer (default layout)" Style="{StaticResource FieldLabel}" />
+                            <ui:TextBox Text="{Binding FooterText, UpdateSourceTrigger=PropertyChanged}"
+                                        ToolTip="Bottom-strip text shown in the default image+text layout." />
+
+                            <TextBlock Text="Footer left (text-only)" Style="{StaticResource FieldLabel}" />
+                            <ui:TextBox Text="{Binding FooterLeftText, UpdateSourceTrigger=PropertyChanged}"
+                                        ToolTip="Left footer slot in the text-only layout. Ignored in the default layout." />
+
+                            <TextBlock Text="Footer right (text-only)" Style="{StaticResource FieldLabel}" />
+                            <ui:TextBox Text="{Binding FooterRightText, UpdateSourceTrigger=PropertyChanged}"
+                                        ToolTip="Right footer slot in the text-only layout. Ignored in the default layout." />
+                        </StackPanel>
+
+                        <DockPanel Margin="16,18,16,8">
+                            <ui:SymbolIcon DockPanel.Dock="Right"
+                                           Style="{StaticResource HelpIconStyle}"
+                                           ToolTip="Pictures shown on the thumbnail. Local paths and direct http(s) URLs both work. PNGs with transparency look best for logos." />
+                            <TextBlock Text="IMAGES"
+                                       FontSize="11" FontWeight="SemiBold" Opacity="0.55"
+                                       Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                       VerticalAlignment="Center" />
+                        </DockPanel>
+                        <StackPanel Margin="16,0,16,0">
+                            <TextBlock Text="Logo" Style="{StaticResource FieldLabel}" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <ui:TextBox Grid.Column="0"
+                                            Text="{Binding LogoPath, UpdateSourceTrigger=PropertyChanged}"
+                                            PlaceholderText="path or http(s) URL"
+                                            ToolTip="Brand logo shown in the upper-left. Local file path or a direct PNG/JPG URL. Empty = no logo." />
+                                <ui:Button Grid.Column="1"
+                                           Content="…"
+                                           Margin="6,0,0,0"
+                                           Click="OnPickLogo"
+                                           ToolTip="Browse for the logo image." />
+                            </Grid>
+
+                            <TextBlock Text="Main image" Style="{StaticResource FieldLabel}" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <ui:TextBox Grid.Column="0"
+                                            Text="{Binding ImagePath, UpdateSourceTrigger=PropertyChanged}"
+                                            PlaceholderText="path or http(s) URL"
+                                            ToolTip="Main hero image — the prop screenshot, product render, etc. Hidden in text-only layout." />
+                                <ui:Button Grid.Column="1"
+                                           Content="…"
+                                           Margin="6,0,0,0"
+                                           Click="OnPickImage"
+                                           ToolTip="Browse for the main image." />
+                            </Grid>
+
+                            <TextBlock Text="Footer right logo (text-only)" Style="{StaticResource FieldLabel}" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <ui:TextBox Grid.Column="0"
+                                            Text="{Binding FooterRightLogoPath, UpdateSourceTrigger=PropertyChanged}"
+                                            PlaceholderText="path or http(s) URL"
+                                            ToolTip="Small footer-right logo for the text-only layout (e.g. a sponsor or platform mark). Ignored in the default layout." />
+                                <ui:Button Grid.Column="1"
+                                           Content="…"
+                                           Margin="6,0,0,0"
+                                           Click="OnPickFooterLogo"
+                                           ToolTip="Browse for the footer logo." />
+                            </Grid>
+
+                            <TextBlock Style="{StaticResource FieldLabel}">
+                                <Run Text="Image scale " />
+                                <Run Text="{Binding ImageScale, StringFormat={}{0:F0}%, Mode=OneWay}"
+                                     FontFamily="Consolas" />
+                            </TextBlock>
+                            <Slider Value="{Binding ImageScale, Mode=TwoWay}"
+                                    Minimum="40" Maximum="100"
+                                    ToolTip="How big the main hero image is rendered inside its slot. 100% fills the slot edge-to-edge; lower values leave breathing room around it." />
+                        </StackPanel>
+
+                        <DockPanel Margin="16,18,16,8">
+                            <ui:SymbolIcon DockPanel.Dock="Right"
+                                           Style="{StaticResource HelpIconStyle}"
+                                           ToolTip="Background fill behind everything else. Use a flat colour from the theme, or override with a custom gradient between two hex colours." />
+                            <TextBlock Text="BACKDROP"
+                                       FontSize="11" FontWeight="SemiBold" Opacity="0.55"
+                                       Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                                       VerticalAlignment="Center" />
+                        </DockPanel>
+                        <StackPanel Margin="16,0,16,0">
+                            <ui:ToggleSwitch IsChecked="{Binding GradientEnabled}"
+                                             Content="Gradient backdrop"
+                                             ToolTip="Replace the theme's flat background with a top-to-bottom gradient between the two colours below." />
+                            <TextBlock Text="Gradient start (#hex)" Style="{StaticResource FieldLabel}" />
+                            <ui:TextBox Text="{Binding GradientColorStart, UpdateSourceTrigger=PropertyChanged}"
+                                        FontFamily="Consolas"
+                                        IsEnabled="{Binding GradientEnabled}"
+                                        ToolTip="Top colour of the gradient as a hex string (e.g. #1A1F2E). Accepts 6- or 8-digit hex (RGB or RGBA)." />
+                            <TextBlock Text="Gradient end (#hex)" Style="{StaticResource FieldLabel}" />
+                            <ui:TextBox Text="{Binding GradientColorEnd, UpdateSourceTrigger=PropertyChanged}"
+                                        FontFamily="Consolas"
+                                        IsEnabled="{Binding GradientEnabled}"
+                                        ToolTip="Bottom colour of the gradient as a hex string." />
+                        </StackPanel>
+
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+            <Grid Grid.Column="1"
+                  Margin="16,16,16,16"
+                  Background="{Binding PageBgBrush}">
+
+                <Viewbox Stretch="Uniform">
+                    <Grid x:Name="ThumbnailSurface"
+                          Width="1600" Height="800"
+                          Background="{Binding ThumbnailBgBrush}"
+                          ClipToBounds="True">
+
+                        <Rectangle Visibility="{Binding GradientEnabled, Converter={StaticResource BooleanToVisibility}}">
+                            <Rectangle.Fill>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                    <GradientStop Color="{Binding GradientColorStart, Converter={StaticResource HexColor}}" Offset="0" />
+                                    <GradientStop Color="{Binding GradientColorEnd, Converter={StaticResource HexColor}}" Offset="1" />
+                                </LinearGradientBrush>
+                            </Rectangle.Fill>
+                        </Rectangle>
+
+                        <Rectangle>
+                            <Rectangle.Fill>
+                                <RadialGradientBrush GradientOrigin="0.5,0.5" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+                                    <GradientStop Color="#0DFFFFFF" Offset="0.0" />
+                                    <GradientStop Color="#00FFFFFF" Offset="0.7" />
+                                </RadialGradientBrush>
+                            </Rectangle.Fill>
+                        </Rectangle>
+
+                        <Rectangle Visibility="{Binding ShowGrid, Converter={StaticResource BooleanToVisibility}}">
+                            <Rectangle.Fill>
+                                <DrawingBrush TileMode="Tile"
+                                              Viewport="0,0,25,25"
+                                              ViewportUnits="Absolute"
+                                              Stretch="None">
+                                    <DrawingBrush.Drawing>
+                                        <GeometryDrawing>
+                                            <GeometryDrawing.Brush>
+                                                <SolidColorBrush Color="{Binding ThumbnailGridColor}" />
+                                            </GeometryDrawing.Brush>
+                                            <GeometryDrawing.Geometry>
+                                                <EllipseGeometry Center="12.5,12.5" RadiusX="1.5" RadiusY="1.5" />
+                                            </GeometryDrawing.Geometry>
+                                        </GeometryDrawing>
+                                    </DrawingBrush.Drawing>
+                                </DrawingBrush>
+                            </Rectangle.Fill>
+                        </Rectangle>
+
+                        <Grid Visibility="{Binding IsDefaultLayout, Converter={StaticResource BooleanToVisibility}}"
+                              Margin="80,60">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0"
+                                        VerticalAlignment="Center"
+                                        Margin="-40,0,0,0">
+                                <TextBlock Text="{Binding HandleText}"
+                                           Foreground="{Binding SecondaryTextBrush}"
+                                           FontSize="24"
+                                           Margin="0,0,0,16" />
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="{Binding LogoSource}"
+                                           Width="70" Height="70"
+                                           Stretch="Uniform"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,20,0"
+                                           Visibility="{Binding HasLogo, Converter={StaticResource BooleanToVisibility}}" />
+                                    <TextBlock Text="{Binding TitleText}"
+                                               Foreground="{Binding MainTextBrush}"
+                                               FontSize="60"
+                                               FontWeight="ExtraBold"
+                                               LineHeight="66" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal"
+                                            Margin="0,8,0,0"
+                                            Opacity="0.4"
+                                            OpacityMask="{StaticResource ReflectionMask}"
+                                            RenderTransformOrigin="0.5,0.5">
+                                    <StackPanel.RenderTransform>
+                                        <ScaleTransform ScaleY="-1" />
+                                    </StackPanel.RenderTransform>
+                                    <Image Source="{Binding LogoSource}"
+                                           Width="70" Height="70"
+                                           Stretch="Uniform"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,20,0"
+                                           Visibility="{Binding HasLogo, Converter={StaticResource BooleanToVisibility}}" />
+                                    <TextBlock Text="{Binding TitleText}"
+                                               Foreground="{Binding MainTextBrush}"
+                                               FontSize="60"
+                                               FontWeight="ExtraBold"
+                                               LineHeight="66" />
+                                </StackPanel>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Top"
+                                        Margin="0,0,-40,0">
+                                <TextBlock Text="{Binding RightHeaderText}"
+                                           Foreground="{Binding SecondaryTextBrush}"
+                                           FontSize="20"
+                                           FontWeight="Bold"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,0,0,24" />
+                                <Border Width="{Binding ImageCardSize, Mode=OneWay}"
+                                        Height="{Binding ImageCardSize, Mode=OneWay}"
+                                        CornerRadius="16"
+                                        ClipToBounds="True"
+                                        Visibility="{Binding HasImage, Converter={StaticResource BooleanToVisibility}}">
+                                    <Image Source="{Binding ImageSource}"
+                                           Stretch="UniformToFill" />
+                                </Border>
+                                <Border Width="{Binding ImageCardSize, Mode=OneWay}"
+                                        Height="{Binding ImageReflectionHeight, Mode=OneWay}"
+                                        CornerRadius="16"
+                                        ClipToBounds="True"
+                                        Margin="0,4,0,0"
+                                        Opacity="0.4"
+                                        OpacityMask="{StaticResource ReflectionMask}"
+                                        RenderTransformOrigin="0.5,0.5"
+                                        Visibility="{Binding HasImage, Converter={StaticResource BooleanToVisibility}}">
+                                    <Border.RenderTransform>
+                                        <ScaleTransform ScaleY="-1" />
+                                    </Border.RenderTransform>
+                                    <Image Source="{Binding ImageSource}"
+                                           Stretch="UniformToFill"
+                                           VerticalAlignment="Top" />
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+
+                        <StackPanel Visibility="{Binding IsDefaultLayout, Converter={StaticResource BooleanToVisibility}}"
+                                    Orientation="Horizontal"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Bottom"
+                                    Margin="0,0,0,15">
+                            <StackPanel.RenderTransform>
+                                <TranslateTransform X="400" />
+                            </StackPanel.RenderTransform>
+                            <Image Source="{Binding LogoSource}"
+                                   Width="24" Height="24"
+                                   Margin="0,0,16,0"
+                                   VerticalAlignment="Center"
+                                   Visibility="{Binding HasLogo, Converter={StaticResource BooleanToVisibility}}" />
+                            <TextBlock Text="{Binding FooterText}"
+                                       Foreground="{Binding SecondaryTextBrush}"
+                                       FontSize="18"
+                                       FontWeight="Bold"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+
+                        <Grid Visibility="{Binding IsTextOnly, Converter={StaticResource BooleanToVisibility}}">
+                            <Border HorizontalAlignment="Center"
+                                    VerticalAlignment="Top"
+                                    Margin="0,40,0,0"
+                                    Padding="32,12"
+                                    BorderThickness="1"
+                                    BorderBrush="{Binding SecondaryTextBrush}">
+                                <TextBlock Text="{Binding RightHeaderText}"
+                                           Foreground="{Binding SecondaryTextBrush}"
+                                           FontSize="16"
+                                           FontWeight="Bold" />
+                            </Border>
+
+                            <StackPanel HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Margin="0,-40,0,0">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <Image Source="{Binding LogoSource}"
+                                           Width="80" Height="80"
+                                           Margin="0,0,24,0"
+                                           VerticalAlignment="Center"
+                                           Visibility="{Binding HasLogo, Converter={StaticResource BooleanToVisibility}}" />
+                                    <TextBlock Text="{Binding TitleText}"
+                                               Foreground="{Binding MainTextBrush}"
+                                               FontSize="73"
+                                               FontWeight="ExtraBold"
+                                               LineHeight="80" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal"
+                                            HorizontalAlignment="Center"
+                                            Margin="0,8,0,0"
+                                            Opacity="0.4"
+                                            OpacityMask="{StaticResource ReflectionMask}"
+                                            RenderTransformOrigin="0.5,0.5">
+                                    <StackPanel.RenderTransform>
+                                        <ScaleTransform ScaleY="-1" />
+                                    </StackPanel.RenderTransform>
+                                    <Image Source="{Binding LogoSource}"
+                                           Width="80" Height="80"
+                                           Margin="0,0,24,0"
+                                           VerticalAlignment="Center"
+                                           Visibility="{Binding HasLogo, Converter={StaticResource BooleanToVisibility}}" />
+                                    <TextBlock Text="{Binding TitleText}"
+                                               Foreground="{Binding MainTextBrush}"
+                                               FontSize="73"
+                                               FontWeight="ExtraBold"
+                                               LineHeight="80" />
+                                </StackPanel>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Bottom"
+                                        Margin="0,0,0,30">
+                                <Image Source="{Binding LogoSource}"
+                                       Width="28" Height="28"
+                                       Margin="0,0,12,0"
+                                       VerticalAlignment="Center"
+                                       Visibility="{Binding HasLogo, Converter={StaticResource BooleanToVisibility}}" />
+                                <TextBlock Text="{Binding FooterLeftText}"
+                                           Foreground="{Binding SecondaryTextBrush}"
+                                           FontSize="18"
+                                           FontWeight="Medium"
+                                           VerticalAlignment="Center" />
+                                <TextBlock Text="|"
+                                           Foreground="{Binding SecondaryTextBrush}"
+                                           FontSize="18"
+                                           Opacity="0.6"
+                                           Margin="12,0"
+                                           VerticalAlignment="Center" />
+                                <Image Source="{Binding FooterLogoSource}"
+                                       Width="28" Height="28"
+                                       Margin="0,0,12,0"
+                                       VerticalAlignment="Center"
+                                       Visibility="{Binding HasFooterLogo, Converter={StaticResource BooleanToVisibility}}" />
+                                <TextBlock Text="{Binding FooterRightText}"
+                                           Foreground="{Binding SecondaryTextBrush}"
+                                           FontSize="18"
+                                           FontWeight="Medium"
+                                           VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Grid>
+
+                        <Image x:Name="GrainLayer"
+                               Stretch="Fill"
+                               IsHitTestVisible="False"
+                               Visibility="{Binding ShowGrain, Converter={StaticResource BooleanToVisibility}}"
+                               Opacity="{Binding GrainOpacity}" />
+                    </Grid>
+                </Viewbox>
+            </Grid>
+        </Grid>
+
+        <Border Grid.Row="1"
+                BorderThickness="0,1,0,0"
+                BorderBrush="{DynamicResource ControlElevationBorderBrush}"
+                Background="{DynamicResource ControlFillColorDefaultBrush}"
+                Padding="16,12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0"
+                           Text="{Binding Summary}"
+                           FontSize="12"
+                           Opacity="0.85"
+                           VerticalAlignment="Center"
+                           TextTrimming="CharacterEllipsis" />
+
+                <ui:Button Grid.Column="1"
+                           Content="EXPORT PNG"
+                           Appearance="Primary"
+                           Padding="32,12"
+                           FontSize="13"
+                           FontWeight="SemiBold"
+                           Click="OnExport"
+                           ToolTip="Render the live preview to a 1600×800 PNG and save it. The dialog asks where to put it; suggested name is based on the title field.">
+                    <ui:Button.Icon>
+                        <ui:SymbolIcon Symbol="Image24" />
+                    </ui:Button.Icon>
+                </ui:Button>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>
