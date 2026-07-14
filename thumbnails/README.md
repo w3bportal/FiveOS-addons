@@ -4,7 +4,7 @@ Generate 1600x800 release thumbnails for FiveM scripts — pick a theme, set you
 text and images, then export a PNG. 30+ built-in themes, optional grid/grain/
 gradient, and a live 1600x800 preview.
 
-Based on [cfx-portal/rk-thumbnails](https://github.com/cfx-portal/rk-thumbnails).
+Based on [9zku/rk-thumbnails](https://github.com/9zku/rk-thumbnails).
 
 ## What's here
 
@@ -22,4 +22,4 @@ view to the sidebar. Exported PNGs land in `Downloads/FiveOS_thumbs`.
 
 ## Credit
 
-Ported from [cfx-portal/rk-thumbnails](https://github.com/cfx-portal/rk-thumbnails).
+Ported from [9zku/rk-thumbnails](https://github.com/9zku/rk-thumbnails).

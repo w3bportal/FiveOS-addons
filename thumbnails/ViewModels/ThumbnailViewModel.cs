@@ -1,6 +1,6 @@
 // Copyright (c) 2026 FiveOS. All rights reserved. See LICENSE.
 // https://github.com/w3bportal/FiveOS
-// Adapted from cfx-portal/rk-thumbnails - https://github.com/cfx-portal/rk-thumbnails
+// Adapted from 9zku/rk-thumbnails - https://github.com/9zku/rk-thumbnails
 
 using System.Collections.ObjectModel;
 using System.IO;
@@ -11,7 +11,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 namespace FiveOS.ViewModels;
 
 /// <summary>
-/// View-model for the Thumbnails plugin — port of cfx-portal/rk-thumbnails.
+/// View-model for the Thumbnails plugin — port of 9zku/rk-thumbnails.
 /// Generates 1600x800 thumbnail images for FiveM script releases.
 /// </summary>
 public partial class ThumbnailViewModel : ObservableObject

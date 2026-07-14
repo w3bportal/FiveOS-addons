@@ -1,4 +1,4 @@
-<!-- Adapted from cfx-portal/rk-thumbnails - https://github.com/cfx-portal/rk-thumbnails -->
+<!-- Adapted from 9zku/rk-thumbnails - https://github.com/9zku/rk-thumbnails -->
 <UserControl x:Class="FiveOS.Views.ThumbnailView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"

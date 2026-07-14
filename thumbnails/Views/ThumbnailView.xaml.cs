@@ -1,6 +1,6 @@
 // Copyright (c) 2026 FiveOS. All rights reserved. See LICENSE.
 // https://github.com/w3bportal/FiveOS
-// Adapted from cfx-portal/rk-thumbnails - https://github.com/cfx-portal/rk-thumbnails
+// Adapted from 9zku/rk-thumbnails - https://github.com/9zku/rk-thumbnails
 
 using System.ComponentModel;
 using System.Diagnostics;
@@ -15,7 +15,7 @@ using FiveOS.ViewModels;
 namespace FiveOS.Views;
 
 /// <summary>
-/// Thumbnails plugin view — port of cfx-portal/rk-thumbnails. The 1600x800
+/// Thumbnails plugin view — port of 9zku/rk-thumbnails. The 1600x800
 /// preview surface drives both on-screen rendering (scaled by the
 /// surrounding Viewbox) and PNG export.
 /// </summary>
