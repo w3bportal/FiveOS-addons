@@ -1,5 +1,6 @@
 // Copyright (c) 2026 FiveOS. All rights reserved. See LICENSE.
 // https://github.com/w3bportal/FiveOS
+// Adapted from cfx-portal/rk-thumbnails - https://github.com/cfx-portal/rk-thumbnails
 
 using System.Collections.ObjectModel;
 using System.IO;
